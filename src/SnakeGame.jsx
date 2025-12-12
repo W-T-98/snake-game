@@ -11,6 +11,7 @@ export default function SnakeGame() {
   const [dir, setDir] = useState([0, -1]);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
+  const [passThroughMode, setPassThroughMode] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(moveSnake, SPEED);
@@ -71,15 +72,30 @@ export default function SnakeGame() {
 
     const newSnake = [...snake];
     const head = newSnake[0];
-    const newHead = [head[0] + dir[0], head[1] + dir[1]];
+    let newHead = [head[0] + dir[0], head[1] + dir[1]];
 
-    if (
-      newHead[0] < 0 ||
-      newHead[1] < 0 ||
-      newHead[0] >= BOARD_SIZE ||
-      newHead[1] >= BOARD_SIZE ||
-      newSnake.some(([x, y]) => x === newHead[0] && y === newHead[1])
-    ) {
+    // Handle pass-through mode (wrap around) or walls mode (game over)
+    if (passThroughMode) {
+      // Wrap around the edges
+      if (newHead[0] < 0) newHead[0] = BOARD_SIZE - 1;
+      if (newHead[0] >= BOARD_SIZE) newHead[0] = 0;
+      if (newHead[1] < 0) newHead[1] = BOARD_SIZE - 1;
+      if (newHead[1] >= BOARD_SIZE) newHead[1] = 0;
+    } else {
+      // Walls mode - check for collisions
+      if (
+        newHead[0] < 0 ||
+        newHead[1] < 0 ||
+        newHead[0] >= BOARD_SIZE ||
+        newHead[1] >= BOARD_SIZE
+      ) {
+        setGameOver(true);
+        return;
+      }
+    }
+
+    // Check for self-collision (applies to both modes)
+    if (newSnake.some(([x, y]) => x === newHead[0] && y === newHead[1])) {
       setGameOver(true);
       return;
     }
@@ -111,6 +127,18 @@ export default function SnakeGame() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white gap-4">
       <h2 className="text-2xl font-bold">🐍 Snake Game</h2>
       <p className="text-xl font-semibold">Score: {score}</p>
+      
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-gray-300">
+          Mode: {passThroughMode ? "Pass-Through" : "Walls"}
+        </span>
+        <button
+          onClick={() => setPassThroughMode(!passThroughMode)}
+          className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded font-medium transition-colors"
+        >
+          {passThroughMode ? "Switch to Walls" : "Switch to Pass-Through"}
+        </button>
+      </div>
 
       <canvas
         ref={canvasRef}
