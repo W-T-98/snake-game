@@ -35,11 +35,33 @@ export default function SnakeGame() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Draw grid lines
+    ctx.strokeStyle = "#d1d5db"; // gray-300
+    ctx.lineWidth = 0.5;
+    
+    // Vertical lines
+    for (let x = 0; x <= BOARD_SIZE; x++) {
+      ctx.beginPath();
+      ctx.moveTo(x * SCALE, 0);
+      ctx.lineTo(x * SCALE, BOARD_SIZE * SCALE);
+      ctx.stroke();
+    }
+    
+    // Horizontal lines
+    for (let y = 0; y <= BOARD_SIZE; y++) {
+      ctx.beginPath();
+      ctx.moveTo(0, y * SCALE);
+      ctx.lineTo(BOARD_SIZE * SCALE, y * SCALE);
+      ctx.stroke();
+    }
+
+    // Draw snake
     ctx.fillStyle = "#22c55e"; // green-500
     snake.forEach(([x, y]) =>
       ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE)
     );
 
+    // Draw food
     ctx.fillStyle = "#ef4444"; // red-500
     ctx.fillRect(food[0] * SCALE, food[1] * SCALE, SCALE, SCALE);
   }, [snake, food]);
